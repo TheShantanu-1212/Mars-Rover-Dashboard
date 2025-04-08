@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odyssey Control Panel</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'styles.css') }}" />
+</head>
+<body>
+    <header>Odyssey Control Panel</header>
+    <div id="container">
+        <div id="sidebar">
+            <button onclick="showSubmenu('main')">Main</button>
+            <button onclick="showSubmenu('map')">Map</button>
+            <button onclick="showSubmenu('autonomous')">Autonomous</button>
+            <button onclick="showSubmenu('biodata')">Biodata</button>
+            <button onclick="showSubmenu('camera')">Camera Feed</button>
+            <button onclick="showSubmenu('arm')">Robotic Arm</button>
+        </div>
+        <div id="resizer"></div>
+        <div id="content">
+            <div id="main" class="submenu">
+                <div class="submenu-heading">Main</div>
+                <div class="grid-container">
+                    <div class="section">
+                        <div class="header">Battery</div>
+                        <div class="data">
+                            Charge: 75% <div style="background: #ccc; width: 100%; height: 10px; border-radius: 5px; overflow: hidden;">
+                            <div style="background: #4caf50; width: 75%; height: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="header">IMU</div>
+                        <div class="data">
+                            X-Tilt: 2.5°<br>
+                            Y-Tilt: -1.2°<br>
+                            Z-Tilt: 0.0°
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="header">Wheels</div>
+                        <div class="data">
+                            Wheel 1: 120 rpm<br>
+                            Wheel 2: 118 rpm<br>
+                            Wheel 3: 121 rpm<br>
+                            Wheel 4: 119 rpm<br>
+                            Wheel 5: 120 rpm<br>
+                            Wheel 6: 117 rpm
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="header">Command Log</div>
+                        <div class="data">
+                            - Move forward 2 meters<br>
+                            - Turn 90° clockwise<br>
+                            - Stop<br>
+                            - Capture image
+                        </div>
+                    </div>
+                    <div class="section">
+                        <div class="header">Communication Statistics</div>
+                        <div class="data">
+                            Ping: 32 ms<br>
+                            Sent: 45 packets<br>
+                            Received: 45 packets
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="map" class="submenu" style="display: none;">
+                <div class="submenu-heading">Map</div>
+                <div id="map"></div>
+            </div>
+            <div id="camera" class="submenu" style="display: none;">
+                <div class="submenu-heading">Camera Feed</div>
+                <div class="grid-container video-feed">
+                    <div class="section">
+                        <img src="/video_feed1" alt="Camera 1 Feed">
+                        <div class="caption">Camera 1</div>
+                    </div>
+                    <div class="section">
+                        <img src="/video_feed2" alt="Camera 2 Feed">
+                        <div class="caption">Camera 2</div>
+                    </div>
+                    <div class="section">
+                        <img src="/video_feed3" alt="Camera 3 Feed">
+                        <div class="caption">Camera 3</div>
+                    </div>
+                </div>
+            </div>
+            <div id="arm" class="submenu" style="display: none;">
+                <div class="submenu-heading">Robotic Arm</div>
+                <!-- Robotic Arm content -->
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        const resizer = document.getElementById('resizer');
+        const sidebar = document.getElementById('sidebar');
+        const container = document.getElementById('container');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', function(e) {
+            isResizing = true;
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', stopResize);
+        });
+
+        function resize(e) {
+            if (isResizing) {
+                const newWidth = e.clientX - container.offsetLeft;
+                if (newWidth >= 100 && newWidth <= 300) {
+                    sidebar.style.width = `${newWidth}px`;
+                }
+            }
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        function showSubmenu(submenuId) {
+            const submenus = document.querySelectorAll('.submenu');
+            submenus.forEach(submenu => {
+                submenu.style.display = 'none';
+            });
+            document.getElementById(submenuId).style.display = 'block';
+
+            if (submenuId === 'map') {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 200);
+            }
+        }
+
+        // Initialize Leaflet map
+        const map = L.map('map').setView([51.505, -0.09], 13); // Default to London
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    </script>
+</body>
+</html>
+
